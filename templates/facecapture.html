@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Capture Wajah</title>
+  </head>
+  <body>
+    <video id="video" width="720" height="560" autoplay></video>
+    <button id="snap_absen">Absen</button>
+    <button id="snap_register">Register</button>
+    <canvas id="canvas" width="720" height="560" style="display: none"></canvas>
+
+    <script>
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("canvas");
+      const context = canvas.getContext("2d");
+      const snapAbsen = document.getElementById("snap_absen");
+      const snapRegister = document.getElementById("snap_register");
+
+      navigator.mediaDevices.getUserMedia({ video: {} }).then((stream) => {
+        video.srcObject = stream;
+      });
+
+      snapAbsen.addEventListener("click", () => {
+        context.drawImage(video, 0, 0, 720, 560);
+        let faceImage = canvas.toDataURL("image/png");
+
+        fetch("/absen", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ image: faceImage }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "success") {
+              alert("Recognized as: " + data.name);
+            } else {
+              alert("Face not recognized");
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      });
+
+      snapRegister.addEventListener("click", () => {
+        const name = prompt("Enter your name for registration:");
+
+        if (name) {
+          context.drawImage(video, 0, 0, 720, 560);
+          let faceImage = canvas.toDataURL("image/png");
+
+          fetch("/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name: name, image_data: faceImage }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.status === "success") {
+                alert("User registered successfully");
+              } else {
+                alert("No face detected or registration failed");
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        }
+      });
+    </script>
+  </body>
+</html>

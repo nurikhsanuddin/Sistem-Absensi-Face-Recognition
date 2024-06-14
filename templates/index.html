@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Aplikasi Absensi</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      @keyframes backgroundAnimation {
+        0% {
+          background-position: 0% 50%;
+        }
+        100% {
+          background-position: 100% 50%;
+        }
+      }
+
+      body {
+        background: linear-gradient(45deg, #ff5252, #007bff, #ffa726, #0056b3);
+        background-size: 800% 800%; /* Increased steps for smoother animation */
+        animation: backgroundAnimation 20s linear infinite; /* Adjusted animation duration */
+        background-color: #f4f4f4;
+      }
+
+      .container {
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        margin-top: 50px;
+      }
+
+      .admin-button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s;
+      }
+
+      .admin-button:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+      }
+
+      .capture-video {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        height: 100%;
+      }
+
+      .capture-button {
+        margin-top: 10px;
+      }
+
+      .absensi-form {
+        display: none;
+      }
+
+      /* Styling for Capture Wajah section */
+      .capture-video label {
+        font-weight: bold;
+      }
+
+      .capture-video video {
+        border: 2px solid #007bff;
+        border-radius: 5px;
+      }
+
+      .capture-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .capture-button:hover {
+        background-color: #0056b3;
+      }
+      #overlay {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* Warna hitam transparan */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999; /* Pastikan elemen ini berada di atas semua elemen lain */
+}
+
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 10px; /* Jarak antara spinner dan teks */
+}
+
+.loading-text {
+  color: white; /* Warna teks putih */
+}
+
+
+    </style>
+  </head>
+  <body>
+    <div id="overlay">
+      <div class="spinner-container">
+        <div class="spinner-border text-light" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <p class="loading-text">Sedang Memuat Kamera</p>
+      </div>
+    </div>
+    
+    
+    
+    
+    <div class="container">
+      <h2 class="text-center">Solo Techno Incubator HR System</h2>
+      <div class="text-center">
+        <button class="btn btn-primary btn-block" id="showForm">
+          Absen Sekarang
+        </button>
+        <button class="admin-button mt-3" onclick="goToAdminPage()">
+          <span class="d-inline-block align-middle">Go to Admin Page</span>
+          <span class="ml-2 align-middle">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-arrow-right-circle"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm-.5 4.5a.5.5 0 0 1 .5.5v3.793l2.354-2.353a.5.5 0 1 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7 8.293V4.5a.5.5 0 0 1 .5-.5z"
+              />
+              <path
+                fill-rule="evenodd"
+                d="M7.5 1a.5.5 0 0 1 .5.5V5h1a.5.5 0 0 1 0 1H7V9.293l2.354-2.353a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7 9.293V6H6a.5.5 0 0 1 0-1h1V1.5a.5.5 0 0 1 .5-.5z"
+              />
+            </svg>
+          </span>
+        </button>
+      </div>
+
+      <!-- Area Capture Wajah -->
+      <div class="capture-video" id="captureSection">
+        <label>Capture Wajah:</label>
+        <img
+          src="{{ url_for('video_feed') }}"
+          id="video"
+          width="400"
+          height="240"
+          autoplay
+        ></img>
+        <button id="snap" class="btn btn-secondary capture-button">
+          Capture
+        </button>
+        <canvas
+          id="canvas"
+          width="320"
+          height="240"
+          style="display: none"
+        ></canvas>
+        <input type="hidden" id="faceImage" name="faceImage" />
+      </div>
+
+      <div class="absensi-form" id="formCard">
+        <div class="card mt-4">
+          <div class="card-header">Form Absensi</div>
+          <div class="card-body">
+            <form action="/absen" method="post">
+              <div class="form-group">
+                <label for="person">Person #</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="person"
+                  name="person"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="nama">Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="nama"
+                  name="nama"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="skill">Skill</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="skill"
+                  name="skill"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="tanggal">Tanggal</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="tanggal"
+                  name="tanggal"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="waktu">Waktu</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="waktu"
+                  name="waktu"
+                  required
+                  readonly
+                />
+              </div>
+              <div class="form-group">
+                <label for="latitude">latitude</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="latitude"
+                  name="latitude"
+                  readonly
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="longitude">longitude</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="longitude"
+                  name="longitude"
+                  readonly
+                  required
+                />
+              </div>
+              <!-- <input type="text" name="latitude" id="latitude" /> -->
+              <!-- <input type="text" name="longitude" id="longitude" /> -->
+              <button type="submit" class="btn btn-success btn-block">
+                Submit Absensi
+              </button>
+            </form>
+          </div>
+          <!-- <h3>Today Scan</h3>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>no</th>
+                <th>Person #</th>
+                <th>Name</th>
+                <th>posisi</th>
+                <th>Added</th>
+              </tr>
+            </thead>
+            <tbody id="scandata"></tbody>
+          </table> -->
+        </div>
+      </div>
+    </div>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+      // Tampilkan overlay saat halaman dimuat
+$(window).on('load', function() {
+  $('#overlay').fadeOut(500); // Hilangkan overlay setelah halaman selesai dimuat
+});
+
+      function goToAdminPage() {
+        location.href = "{{ url_for('admin') }}";
+      }
+
+      $(document).ready(function () {
+        $("#showForm").click(function () {
+          // Fill in the current date and time
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = String(now.getMonth() + 1).padStart(2, "0");
+          const day = String(now.getDate()).padStart(2, "0");
+          const hours = String(now.getHours()).padStart(2, "0");
+          const minutes = String(now.getMinutes()).padStart(2, "0");
+
+          $("#tanggal").val(`${year}-${month}-${day}`);
+        //   $("#waktu").val(`${hours}:${minutes}`);
+        $("#person").val("");
+                $("#nama").val("");
+                $("#skill").val("");
+                $("#waktu").val("");
+          // Show the Capture Wajah section
+          $("#captureSection").show(500);
+
+          // Face capture
+          const video = document.getElementById("video");
+          const canvas = document.getElementById("canvas");
+          const context = canvas.getContext("2d");
+          const snap = document.getElementById("snap");
+          const faceImageInput = document.getElementById("faceImage");
+
+          navigator.mediaDevices
+            .getUserMedia({ video: true })
+            .then((stream) => {
+              video.srcObject = stream;
+            })
+            .catch((error) => {
+              console.error("Error accessing the camera:", error);
+            });
+
+          snap.addEventListener("click", () => {
+            // Capture a photo
+            context.drawImage(video, 0, 0, 320, 240);
+            let faceImage = canvas.toDataURL("image/png");
+            faceImageInput.value = faceImage;
+          });
+
+          // Geolocation logic
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              function (position) {
+                $("#latitude").val(position.coords.latitude);
+                $("#longitude").val(position.coords.longitude);
+              },
+              function (error) {
+                alert("Error: " + error.message);
+              }
+            );
+          } else {
+            alert("Geolocation is not supported by this browser.");
+          }
+
+          // Show the absensi form
+          $("#formCard").show(500);
+        });
+      });
+    </script>
+     <script type="text/javascript">
+        $(document).ready(function () {
+          let lastcnt = 0;
+          let cnt;
+          chkNewScan();
+      
+          function chkNewScan() {
+            countTodayScan();
+            setTimeout(chkNewScan, 1000);
+          }
+      
+          function countTodayScan() {
+            $.ajax({
+              url: "/countTodayScan",
+              type: "GET",
+              dataType: "json",
+              success: function (data) {
+                cnt = data.rowcount;
+                if (cnt > lastcnt) {
+                  reloadTable();
+                }
+      
+                lastcnt = cnt;
+              },
+              error: function (result) {
+                console.log("no result!");
+              },
+            });
+          }
+      
+          function reloadTable() {
+            $.ajax({
+              url: "/loadData",
+              type: "GET",
+              dataType: "json",
+              success: function (response) {
+                var tr = $("#scandata");
+                tr.empty();
+      
+                // Clear form fields
+       
+      
+                $.each(response, function (index, item) {
+                  if (item.length > 0) {
+                    for (let i = 0; i < item.length; i++) {
+                      tr.append(
+                        "<tr>" +
+                          "<td>" +
+                          item[i][1] +
+                          "</td>" +
+                          "<td>" +
+                          item[i][1] +
+                          "</td>" +
+                          "<td>" +
+                          item[i][2] +
+                          "</td>" +
+                          "<td>" +
+                          item[i][3] +
+                          "</td>" +
+                          "<td>" +
+                          item[i][4] +
+                          "</td>" +
+                          "</tr>"
+                      );
+      
+                      // Update form fields with latest data
+                      $("#person").val(item[0][1]);
+                      $("#nama").val(item[0][2]);
+                      $("#skill").val(item[0][3]);
+                      $("#waktu").val(item[0][4]);
+                    }
+                  }
+                });
+              },
+              error: function (result) {
+                console.log("no result!");
+              },
+            });
+          }
+        });
+      </script>
+  </body>
+</html>

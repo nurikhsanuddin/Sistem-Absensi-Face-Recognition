@@ -1,0 +1,71 @@
+{% extends "layout.html" %} {% block content %}
+<link
+  href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+  rel="stylesheet"
+/>
+<div class="admin-container">
+  <h2>Halaman Admin</h2>
+  <!-- <p>{{ absensi }}</p> -->
+  <table class="table admin-table">
+    <thead>
+      <tr>
+        <th>Nama</th>
+        <th>Tanggal</th>
+        <th>Waktu</th>
+        <th>Latitude</th>
+        <th>Longitude</th>
+        <th>Foto</th>
+        <th>Action</th>
+        <!-- Kolom untuk tombol delete -->
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in absensi %}
+      <tr>
+        <td>{{ item.nama }}</td>
+        <td>{{ item.tanggal }}</td>
+        <td>{{ item.waktu }}</td>
+        <td>{{ item.latitude }}</td>
+        <td>{{ item.longitude }}</td>
+        <td>
+          {% if item.person %}
+          <img
+            src="/dataset/{{ item.person }}.100.jpg"
+            alt="Foto Capture"
+            width="100"
+          />
+          {% else %}
+          <span>No Photo</span>
+          {% endif %}
+        </td>
+        <td>
+          <form action="" method="post">
+            <button type="submit" class="btn-delete">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <a class="logout-button" href="{{ url_for('admin_logout') }}">Logout</a>
+</div>
+
+<!-- Add CSS for styling -->
+<link
+  href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+  rel="stylesheet"
+/>
+
+<!-- Add JavaScript for Bootstrap -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Add JavaScript for table animation -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const adminTable = document.querySelector(".admin-table");
+    adminTable.style.opacity = "1";
+    adminTable.style.transform = "translateY(0)";
+  });
+</script>
+{% endblock %}

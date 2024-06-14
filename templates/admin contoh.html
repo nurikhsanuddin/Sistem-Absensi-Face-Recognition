@@ -1,0 +1,72 @@
+{% extends "layout.html" %} {% block content %}
+<div class="admin-container">
+  <h2>Halaman Admin</h2>
+
+  <table class="table admin-table">
+    <thead>
+      <tr>
+        <th>Nama</th>
+        <th>Tanggal</th>
+        <th>Waktu</th>
+        <th>Latitude</th>
+        <th>Longitude</th>
+        <th>Foto</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in absensi %}
+      <tr>
+        <td>{{ item.user.name }}</td>
+        <td>{{ item.date.strftime('%d-%m-%Y') }}</td>
+        <td>{{ item.time.strftime('%H:%M:%S') }}</td>
+        <td>{{ item.latitude }}</td>
+        <td>{{ item.longitude }}</td>
+        <td>
+          <img
+            src="{{ url_for('static', filename=item.user.foto_wajah) }}"
+            alt="Foto Capture"
+            width="100"
+          />
+        </td>
+        <td>
+          <form action="" method="post">
+            <button type="submit" class="btn-delete">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <a class="logout-button" href="{{ url_for('admin_logout') }}">Logout</a>
+</div>
+
+<!-- Add CSS for styling -->
+<link
+  href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+  rel="stylesheet"
+/>
+<style>
+  /* CSS styling here */
+  .admin-table {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+  }
+
+  .admin-table,
+  .logout-button {
+    margin-top: 20px;
+  }
+</style>
+
+<!-- Add JavaScript for table animation -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const adminTable = document.querySelector(".admin-table");
+    adminTable.style.opacity = "1";
+    adminTable.style.transform = "translateY(0)";
+  });
+</script>
+{% endblock %}
