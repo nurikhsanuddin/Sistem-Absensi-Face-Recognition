@@ -26,7 +26,7 @@ mycursor = mydb.cursor()
  
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Generate dataset >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 def generate_dataset(nbr):
-    face_classifier = cv2.CascadeClassifier("C:/laragon/www/absenAppcoba/resources/haarcascade_frontalface_default.xml")
+    face_classifier = cv2.CascadeClassifier("D:/laragon/www/Sistem-Absensi-Face-Recognition/resources/haarcascade_frontalface_default.xml")
  
     def face_cropped(img):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -81,7 +81,7 @@ def generate_dataset(nbr):
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Train Classifier >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 @app.route('/train_classifier/<nbr>')
 def train_classifier(nbr):
-    dataset_dir = "C:/laragon/www/absenAppcoba/dataset"
+    dataset_dir = "D:/laragon/www/Sistem-Absensi-Face-Recognition/dataset"
  
     path = [os.path.join(dataset_dir, f) for f in os.listdir(dataset_dir)]
     faces = []
@@ -122,7 +122,7 @@ def face_recognition():  # generate frame by frame from camera
             id, pred = clf.predict(gray_image[y:y + h, x:x + w])
             confidence = int(100 * (1 - pred / 300))
  
-            if confidence > 80 and not justscanned:
+            if confidence > 70 and not justscanned:
                 global cnt
                 cnt += 1
  
@@ -172,7 +172,7 @@ def face_recognition():  # generate frame by frame from camera
         coords = draw_boundary(img, faceCascade, 1.1, 10, (0, 0, 255), "Face", clf)
         return img
  
-    faceCascade = cv2.CascadeClassifier("C:/laragon/www/absenAppcoba/resources/haarcascade_frontalface_default.xml")
+    faceCascade = cv2.CascadeClassifier("D:/laragon/www/Sistem-Absensi-Face-Recognition/resources/haarcascade_frontalface_default.xml")
     clf = cv2.face.LBPHFaceRecognizer_create()
     clf.read("classifier.xml")
  
@@ -206,7 +206,7 @@ def index():
 def admin():
     mycursor.execute("SELECT * FROM absensi")
     absensi = mycursor.fetchall()
-    absensi_dict = [{"nama": item[2], "tanggal": item[4], "waktu": item[5], "latitude": item[6], "longitude": item[7], "person": item[1]} for item in absensi]
+    absensi_dict = [{"id": item[0], "nama": item[2], "tanggal": item[4], "waktu": item[5], "latitude": item[6], "longitude": item[7], "person": item[1]} for item in absensi]
     logging.debug(f"Data absensi: {absensi_dict}")  # Debug to check if data is fetched correctly
     return render_template('admin.html', absensi=absensi_dict)
 
@@ -343,6 +343,16 @@ def submit_absensi():
         mydb.rollback()
 
     return render_template('success.html', status=status)
+@app.route('/delete/<int:id>', methods=['POST'])
+def delete_absensi(id):
+    try:
+        mycursor.execute("DELETE FROM absensi WHERE id = %s", (id,))
+        mydb.commit()
+        response = {'status': 'success', 'message': 'Data absensi berhasil dihapus'}
+    except mysql.connector.Error as err:
+        response = {'status': 'error', 'message': str(err)}
+        mydb.rollback()
+    return jsonify(response)
 
 if __name__ == "__main__":
     app.config['TEMPLATES_AUTO_RELOAD'] = True

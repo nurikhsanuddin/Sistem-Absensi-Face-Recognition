@@ -42,6 +42,7 @@
       <!-- Hanya tampilkan link admin jika pengguna sudah login sebagai admin -->
       {% if session.get('admin_logged_in') %}
       <a href="{{ url_for('admin') }}">Admin</a>
+      <a href="{{ url_for('addprsn') }}">Registrasi</a>
       <a href="{{ url_for('admin_logout') }}">Logout</a>
       {% else %}
       <a href="{{ url_for('admin_login') }}">Admin Login</a>

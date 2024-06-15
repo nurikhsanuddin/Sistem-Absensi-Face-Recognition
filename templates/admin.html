@@ -1,11 +1,10 @@
-{% extends "layout.html" %} {% block content %}
-<link
-  href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-  rel="stylesheet"
-/>
+{% extends "layout.html" %} 
+{% block content %}
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"/>
 <div class="admin-container">
   <h2>Halaman Admin</h2>
-  <!-- <p>{{ absensi }}</p> -->
+  {% if session.get('admin_logged_in') %}
+
   <table class="table admin-table">
     <thead>
       <tr>
@@ -16,12 +15,11 @@
         <th>Longitude</th>
         <th>Foto</th>
         <th>Action</th>
-        <!-- Kolom untuk tombol delete -->
       </tr>
     </thead>
     <tbody>
       {% for item in absensi %}
-      <tr>
+      <tr id="row-{{ item.id }}">
         <td>{{ item.nama }}</td>
         <td>{{ item.tanggal }}</td>
         <td>{{ item.waktu }}</td>
@@ -29,43 +27,52 @@
         <td>{{ item.longitude }}</td>
         <td>
           {% if item.person %}
-          <img
-            src="/dataset/{{ item.person }}.100.jpg"
-            alt="Foto Capture"
-            width="100"
-          />
+          <img src="/dataset/{{ item.person }}.100.jpg" alt="Foto Capture" width="100"/>
           {% else %}
           <span>No Photo</span>
           {% endif %}
         </td>
         <td>
-          <form action="" method="post">
-            <button type="submit" class="btn-delete">Delete</button>
-          </form>
+          <button class="btn-delete btn btn-danger" data-id="{{ item.id }}">Delete</button>
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-
-  <a class="logout-button" href="{{ url_for('admin_logout') }}">Logout</a>
+  {% else %}
+  <div class="alert alert-danger w-100">
+    <span>Anda Belum Login Admin</span>
+  </div>
+  {% endif %}
+  <a class="logout-button btn btn-primary" href="{{ url_for('admin_logout') }}">Logout</a>
 </div>
 
-<!-- Add CSS for styling -->
-<link
-  href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-  rel="stylesheet"
-/>
-
-<!-- Add JavaScript for Bootstrap -->
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"/>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-<!-- Add JavaScript for table animation -->
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const adminTable = document.querySelector(".admin-table");
-    adminTable.style.opacity = "1";
-    adminTable.style.transform = "translateY(0)";
+  $(document).ready(function() {
+    $('.btn-delete').click(function() {
+      const id = $(this).data('id');
+      const row = $('#row-' + id);
+
+      $.ajax({
+        url: '/delete/' + id,
+        type: 'POST',
+        success: function(response) {
+          if (response.status === 'success') {
+            row.fadeOut(500, function() {
+              $(this).remove();
+            });
+          } else {
+            alert('Error: ' + response.message);
+          }
+        },
+        error: function(xhr, status, error) {
+          alert('Error: ' + error);
+        }
+      });
+    });
   });
 </script>
 {% endblock %}
