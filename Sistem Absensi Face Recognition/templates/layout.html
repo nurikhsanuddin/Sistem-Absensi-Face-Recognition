@@ -1,0 +1,65 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aplikasi Absensi</title>
+    <!-- Anda bisa menambahkan CSS framework atau library lainnya di sini, contoh: -->
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
+    <style>
+      /* Anda bisa menambahkan CSS custom di sini */
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>Selamat datang di Aplikasi Absensi</h1>
+      <!-- Anda bisa menambahkan navigasi atau komponen header lainnya di sini -->
+      <style>
+        .admin-button {
+          background-color: #007bff;
+          color: white;
+          padding: 10px 15px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .admin-button:hover {
+          background-color: #0056b3;
+          transform: scale(1.05);
+        }
+      </style>
+    </header>
+
+    <nav>
+      <a href="{{ url_for('index') }}">Home</a>
+      <!-- Hanya tampilkan link admin jika pengguna sudah login sebagai admin -->
+      {% if session.get('admin_logged_in') %}
+      <a href="{{ url_for('admin') }}">Admin</a>
+      <a href="{{ url_for('addprsn') }}">Registrasi</a>
+      <a href="{{ url_for('admin_logout') }}">Logout</a>
+      {% else %}
+      <a href="{{ url_for('admin_login') }}">Admin Login</a>
+      {% endif %}
+    </nav>
+
+    <main>
+      {% block content %}{% endblock %}
+      <!-- Tempat konten spesifik halaman akan dimasukkan -->
+    </main>
+
+    <footer>
+      <p>&copy; 2023 - Aplikasi Absensi</p>
+    </footer>
+
+    <!-- Anda bisa menambahkan JS framework atau library lainnya di sini, contoh: -->
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
+  </body>
+</html>

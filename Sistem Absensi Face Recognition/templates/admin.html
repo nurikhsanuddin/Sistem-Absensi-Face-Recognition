@@ -1,0 +1,78 @@
+{% extends "layout.html" %} 
+{% block content %}
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"/>
+<div class="admin-container">
+  <h2>Halaman Admin</h2>
+  {% if session.get('admin_logged_in') %}
+
+  <table class="table admin-table">
+    <thead>
+      <tr>
+        <th>Nama</th>
+        <th>Tanggal</th>
+        <th>Waktu</th>
+        <th>Latitude</th>
+        <th>Longitude</th>
+        <th>Foto</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in absensi %}
+      <tr id="row-{{ item.id }}">
+        <td>{{ item.nama }}</td>
+        <td>{{ item.tanggal }}</td>
+        <td>{{ item.waktu }}</td>
+        <td>{{ item.latitude }}</td>
+        <td>{{ item.longitude }}</td>
+        <td>
+          {% if item.person %}
+          <img src="/dataset/{{ item.person }}.100.jpg" alt="Foto Capture" width="100"/>
+          {% else %}
+          <span>No Photo</span>
+          {% endif %}
+        </td>
+        <td>
+          <button class="btn-delete btn btn-danger" data-id="{{ item.id }}">Delete</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="alert alert-danger w-100">
+    <span>Anda Belum Login Admin</span>
+  </div>
+  {% endif %}
+  <a class="logout-button btn btn-primary" href="{{ url_for('admin_logout') }}">Logout</a>
+</div>
+
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"/>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+  $(document).ready(function() {
+    $('.btn-delete').click(function() {
+      const id = $(this).data('id');
+      const row = $('#row-' + id);
+
+      $.ajax({
+        url: '/delete/' + id,
+        type: 'POST',
+        success: function(response) {
+          if (response.status === 'success') {
+            row.fadeOut(500, function() {
+              $(this).remove();
+            });
+          } else {
+            alert('Error: ' + response.message);
+          }
+        },
+        error: function(xhr, status, error) {
+          alert('Error: ' + error);
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="login-container">
+    <h2>Admin Login</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <form action="{{ url_for('admin_login') }}" method="post" id="login-form">
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" name="password" required>
+        </div>
+        <button type="submit" class="btn-login">Login</button>
+    </form>
+</div>
+
+<!-- Add CSS and JavaScript for dynamic effects -->
+<link rel="stylesheet" href="admin_login.css">
+<style>
+    .login-container {
+        background-color: #f5f5f5;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    h2 {
+        color: #333;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+
+    .btn-login {
+        background-color: #007BFF;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .btn-login:hover {
+        background-color: #0056b3;
+    }
+
+    .alert {
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 3px;
+        font-weight: bold;
+    }
+
+    .alert-success {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    .alert-danger {
+        background-color: #dc3545;
+        color: #fff;
+    }
+</style>
+
+<!-- Add JavaScript for form validation -->
+<script src="your_custom_script.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const loginForm = document.getElementById("login-form");
+        loginForm.addEventListener("submit", function (event) {
+            const username = loginForm.querySelector('input[name="username"]').value;
+            const password = loginForm.querySelector('input[name="password"]').value;
+            if (!username || !password) {
+                event.preventDefault(); // Prevent form submission
+                alert("Please fill in both username and password fields.");
+            }
+        });
+    });
+</script>
+{% endblock %}

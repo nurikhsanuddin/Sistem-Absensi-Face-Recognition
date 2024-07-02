@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Solo Techno Incubator HR System</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Custom CSS -->
+    <style>
+      @keyframes backgroundAnimation {
+        0% {
+          background-position: 0% 50%;
+        }
+        100% {
+          background-position: 100% 50%;
+        }
+      }
+
+      body {
+        background: linear-gradient(45deg, #ff5252, #007bff, #ffa726, #0056b3);
+        background-size: 800% 800%; /* Increased steps for smoother animation */
+        animation: backgroundAnimation 20s linear infinite; /* Adjusted animation duration */
+        background-color: #f4f4f4;
+      }
+
+      .container {
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        margin-top: 50px;
+      }
+
+      .absensi-form {
+        display: none;
+      }
+
+      .admin-button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s;
+      }
+
+      .admin-button:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+      }
+
+      .capture-video label {
+        font-weight: bold;
+      }
+
+      .capture-video video {
+        border: 2px solid #007bff;
+        border-radius: 5px;
+      }
+
+      .capture-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .capture-button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2 class="text-center">Solo Techno Incubator HR System</h2>
+      <div class="text-center">
+        <button class="btn btn-primary btn-block" id="showForm">
+          Absen Sekarang
+        </button>
+        <a href="/register" class="btn btn-success btn-block mt-3">
+          Registrasi
+        </a>
+        <button class="admin-button mt-3" onclick="goToAdminPage()">
+          <span class="d-inline-block align-middle">Go to Admin Page</span>
+          <span class="ml-2 align-middle">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-arrow-right-circle"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm-.5 4.5a.5.5 0 0 1 .5.5v3.793l2.354-2.353a.5.5 0 1 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7 8.293V4.5a.5.5 0 0 1 .5-.5z"
+              />
+              <path
+                fill-rule="evenodd"
+                d="M7.5 1a.5.5 0 0 1 .5.5V5h1a.5.5 0 0 1 0 1H7V9.293l2.354-2.353a.5.5 0 1 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7 9.293V6H6a.5.5 0 0 1 0-1h1V1.5a.5.5 0 0 1 .5-.5z"
+              />
+            </svg>
+          </span>
+        </button>
+      </div>
+
+      <!-- Area Capture Wajah -->
+      <div class="capture-video" id="captureSection">
+        <label>Capture Wajah:</label>
+        <video id="video" width="320" height="240" autoplay></video>
+        <canvas
+          id="canvas"
+          width="320"
+          height="240"
+          style="display: none"
+        ></canvas>
+        <input type="hidden" id="faceImage" name="faceImage" />
+      </div>
+
+      <div class="absensi-form" id="formCard">
+        <div class="card mt-4">
+          <div class="card-header">Form Absensi</div>
+          <div class="card-body">
+            <form action="/absen" method="post" id="absensiForm">
+              <div class="form-group">
+                <label for="tanggal">Tanggal:</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="tanggal"
+                  name="tanggal"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="waktu">Waktu:</label>
+                <input
+                  type="time"
+                  class="form-control"
+                  id="waktu"
+                  name="waktu"
+                  required
+                />
+              </div>
+              <input type="hidden" name="latitude" id="latitude" />
+              <input type="hidden" name="longitude" id="longitude" />
+              <button
+                type="submit"
+                class="btn btn-success btn-block"
+                id="submitAbsensi"
+              >
+                Submit Absensi
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        $("#showForm").click(function () {
+          // Fill in the current date and time
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = String(now.getMonth() + 1).padStart(2, "0");
+          const day = String(now.getDate()).padStart(2, "0");
+          const hours = String(now.getHours()).padStart(2, "0");
+          const minutes = String(now.getMinutes()).padStart(2, "0");
+
+          $("#tanggal").val(`${year}-${month}-${day}`);
+          $("#waktu").val(`${hours}:${minutes}`);
+
+          // Show the Capture Wajah section
+          $("#captureSection").show(500);
+
+          // Face capture
+          const video = document.getElementById("video");
+          const canvas = document.getElementById("canvas");
+          const context = canvas.getContext("2d");
+          const faceImageInput = document.getElementById("faceImage");
+
+          navigator.mediaDevices
+            .getUserMedia({ video: true })
+            .then((stream) => {
+              video.srcObject = stream;
+            })
+            .catch((error) => {
+              console.error("Error accessing the camera:", error);
+            });
+
+          // Submit Absensi
+          $("#absensiForm").submit(function (event) {
+            event.preventDefault();
+
+            // Capture a photo
+            context.drawImage(video, 0, 0, 320, 240);
+            let faceImage = canvas.toDataURL("image/png");
+            faceImageInput.value = faceImage;
+
+            // Convert image to base64 without header
+            let imageData = faceImage.split(",")[1];
+
+            // Get latitude and longitude
+            let latitude = $("#latitude").val();
+            let longitude = $("#longitude").val();
+
+            // Prepare data as form data
+            let formData = new FormData();
+            formData.append("imageData", imageData);
+            formData.append("latitude", latitude);
+            formData.append("longitude", longitude);
+
+            // Send POST request to /absen
+            $.ajax({
+              type: "POST",
+              url: "/absen",
+              data: formData,
+              contentType: false,
+              processData: false,
+              success: function (response) {
+                console.log(response);
+                alert("Absensi berhasil.");
+              },
+              error: function (error) {
+                console.error("Error:", error.responseText);
+                alert("Error saat melakukan absensi.");
+              },
+            });
+          });
+        });
+
+        $("#showRegister").click(function () {
+          location.href = "/register";
+        });
+
+        function goToAdminPage() {
+          location.href = "/admin";
+        }
+      });
+    </script>
+  </body>
+</html>

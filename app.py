@@ -26,7 +26,7 @@ mycursor = mydb.cursor()
  
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Generate dataset >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 def generate_dataset(nbr):
-    face_classifier = cv2.CascadeClassifier("D:/laragon/www/Sistem-Absensi-Face-Recognition/resources/haarcascade_frontalface_default.xml")
+    face_classifier = cv2.CascadeClassifier("C:/laragon/www/Sistem Absensi Face Recognition/resources/haarcascade_frontalface_default.xml")
  
     def face_cropped(img):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -81,7 +81,7 @@ def generate_dataset(nbr):
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Train Classifier >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 @app.route('/train_classifier/<nbr>')
 def train_classifier(nbr):
-    dataset_dir = "D:/laragon/www/Sistem-Absensi-Face-Recognition/dataset"
+    dataset_dir = "C:/laragon/www/Sistem Absensi Face Recognition/dataset"
  
     path = [os.path.join(dataset_dir, f) for f in os.listdir(dataset_dir)]
     faces = []
@@ -109,70 +109,76 @@ def face_recognition():  # generate frame by frame from camera
     def draw_boundary(img, classifier, scaleFactor, minNeighbors, color, text, clf):
         gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         features = classifier.detectMultiScale(gray_image, scaleFactor, minNeighbors)
- 
+
         global justscanned
         global pause_cnt
- 
+
         pause_cnt += 1
- 
+
         coords = []
- 
+
         for (x, y, w, h) in features:
             cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
             id, pred = clf.predict(gray_image[y:y + h, x:x + w])
             confidence = int(100 * (1 - pred / 300))
- 
+
             if confidence > 70 and not justscanned:
                 global cnt
                 cnt += 1
- 
+
                 n = (100 / 30) * cnt
-                # w_filled = (n / 100) * w
                 w_filled = (cnt / 30) * w
- 
+
                 cv2.putText(img, str(int(n))+' %', (x + 20, y + h + 28), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2, cv2.LINE_AA)
- 
+
                 cv2.rectangle(img, (x, y + h + 40), (x + w, y + h + 50), color, 2)
                 cv2.rectangle(img, (x, y + h + 40), (x + int(w_filled), y + h + 50), (255, 255, 255), cv2.FILLED)
- 
+
                 mycursor.execute("select a.img_person, b.prs_name, b.prs_skill "
-                                 "  from img_dataset a "
-                                 "  left join prs_mstr b on a.img_person = b.prs_nbr "
-                                 " where img_id = " + str(id))
+                                "  from img_dataset a "
+                                "  left join prs_mstr b on a.img_person = b.prs_nbr "
+                                " where img_id = %s", (str(id),))
                 row = mycursor.fetchone()
-                pnbr = row[0]
-                pname = row[1]
-                pskill = row[2]
- 
-                if int(cnt) == 30:
-                    cnt = 0
- 
-                    mycursor.execute("insert into accs_hist (accs_date, accs_prsn) values('"+str(date.today())+"', '" + pnbr + "')")
-                    mydb.commit()
- 
-                    cv2.putText(img, pname + ' | ' + pskill, (x - 10, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (153, 255, 255), 2, cv2.LINE_AA)
-                    time.sleep(1)
- 
-                    justscanned = True
-                    pause_cnt = 0
- 
+
+                if row:
+                    pnbr = row[0]
+                    pname = row[1]
+                    pskill = row[2]
+
+                    if int(cnt) == 30:
+                        cnt = 0
+
+                        mycursor.execute("insert into accs_hist (accs_date, accs_prsn) values(%s, %s)", (str(date.today()), pnbr))
+                        mydb.commit()
+
+                        cv2.putText(img, pname + ' | ' + pskill, (x - 10, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (153, 255, 255), 2, cv2.LINE_AA)
+                        time.sleep(1)
+
+                        justscanned = True
+                        pause_cnt = 0
+
+                else:
+                    cv2.putText(img, 'UNKNOWN', (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2, cv2.LINE_AA)
+                    cnt = 0  # Reset counter if no match found
+
             else:
                 if not justscanned:
                     cv2.putText(img, 'UNKNOWN', (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2, cv2.LINE_AA)
                 else:
-                    cv2.putText(img, ' ', (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2,cv2.LINE_AA)
- 
+                    cv2.putText(img, ' ', (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2, cv2.LINE_AA)
+
                 if pause_cnt > 80:
                     justscanned = False
- 
+
             coords = [x, y, w, h]
         return coords
+
  
     def recognize(img, clf, faceCascade):
         coords = draw_boundary(img, faceCascade, 1.1, 10, (0, 0, 255), "Face", clf)
         return img
  
-    faceCascade = cv2.CascadeClassifier("D:/laragon/www/Sistem-Absensi-Face-Recognition/resources/haarcascade_frontalface_default.xml")
+    faceCascade = cv2.CascadeClassifier("C:/laragon/www/Sistem Absensi Face Recognition/resources/haarcascade_frontalface_default.xml")
     clf = cv2.face.LBPHFaceRecognizer_create()
     clf.read("classifier.xml")
  
@@ -233,7 +239,7 @@ def admin_logout():
     return redirect(url_for('index'))
 
 
-@app.route('/addprsn')
+@app.route('/tambah')
 def addprsn():
     mycursor.execute("select ifnull(max(prs_nbr) + 1, 101) from prs_mstr")
     row = mycursor.fetchone()
