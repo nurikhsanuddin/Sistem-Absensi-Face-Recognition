@@ -18,7 +18,6 @@
       }
 
       body {
-        background: linear-gradient(45deg, #ff5252, #007bff, #ffa726, #0056b3);
         background-size: 800% 800%; /* Increased steps for smoother animation */
         animation: backgroundAnimation 20s linear infinite; /* Adjusted animation duration */
         background-color: #f4f4f4;
@@ -87,35 +86,33 @@
         background-color: #0056b3;
       }
       #overlay {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  background-color: rgba(0, 0, 0, 0.5); /* Warna hitam transparan */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999; /* Pastikan elemen ini berada di atas semua elemen lain */
-}
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.5); /* Warna hitam transparan */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 999; /* Pastikan elemen ini berada di atas semua elemen lain */
+      }
 
-.spinner-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+      .spinner-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
 
-.spinner-border {
-  width: 3rem;
-  height: 3rem;
-  margin-bottom: 10px; /* Jarak antara spinner dan teks */
-}
+      .spinner-border {
+        width: 3rem;
+        height: 3rem;
+        margin-bottom: 10px; /* Jarak antara spinner dan teks */
+      }
 
-.loading-text {
-  color: white; /* Warna teks putih */
-}
-
-
+      .loading-text {
+        color: white; /* Warna teks putih */
+      }
     </style>
   </head>
   <body>
@@ -127,12 +124,9 @@
         <p class="loading-text">Sedang Memuat Kamera</p>
       </div>
     </div>
-    
-    
-    
-    
+
     <div class="container">
-      <h2 class="text-center">Solo Techno Incubator HR System</h2>
+      <h2 class="text-center">SISTEM ABSEN CITRA DIGITAL</h2>
       <div class="text-center">
         <button class="btn btn-primary btn-block" id="showForm">
           Absen Sekarang
@@ -172,7 +166,7 @@
           autoplay
         ></img>
         <button id="snap" class="btn btn-secondary capture-button">
-          Capture
+          
         </button>
         <canvas
           id="canvas"
@@ -209,7 +203,7 @@
                 />
               </div>
               <div class="form-group">
-                <label for="skill">Skill</label>
+                <label for="skill">Posisi</label>
                 <input
                   type="text"
                   class="form-control"
@@ -291,9 +285,9 @@
 
     <script>
       // Tampilkan overlay saat halaman dimuat
-$(window).on('load', function() {
-  $('#overlay').fadeOut(500); // Hilangkan overlay setelah halaman selesai dimuat
-});
+      $(window).on("load", function () {
+        $("#overlay").fadeOut(500); // Hilangkan overlay setelah halaman selesai dimuat
+      });
 
       function goToAdminPage() {
         location.href = "{{ url_for('admin') }}";
@@ -310,11 +304,11 @@ $(window).on('load', function() {
           const minutes = String(now.getMinutes()).padStart(2, "0");
 
           $("#tanggal").val(`${year}-${month}-${day}`);
-        //   $("#waktu").val(`${hours}:${minutes}`);
-        $("#person").val("");
-                $("#nama").val("");
-                $("#skill").val("");
-                $("#waktu").val("");
+          //   $("#waktu").val(`${hours}:${minutes}`);
+          $("#person").val("");
+          $("#nama").val("");
+          $("#skill").val("");
+          $("#waktu").val("");
           // Show the Capture Wajah section
           $("#captureSection").show(500);
 
@@ -361,86 +355,85 @@ $(window).on('load', function() {
         });
       });
     </script>
-     <script type="text/javascript">
-        $(document).ready(function () {
-          let lastcnt = 0;
-          let cnt;
-          chkNewScan();
-      
-          function chkNewScan() {
-            countTodayScan();
-            setTimeout(chkNewScan, 1000);
-          }
-      
-          function countTodayScan() {
-            $.ajax({
-              url: "/countTodayScan",
-              type: "GET",
-              dataType: "json",
-              success: function (data) {
-                cnt = data.rowcount;
-                if (cnt > lastcnt) {
-                  reloadTable();
-                }
-      
-                lastcnt = cnt;
-              },
-              error: function (result) {
-                console.log("no result!");
-              },
-            });
-          }
-      
-          function reloadTable() {
-            $.ajax({
-              url: "/loadData",
-              type: "GET",
-              dataType: "json",
-              success: function (response) {
-                var tr = $("#scandata");
-                tr.empty();
-      
-                // Clear form fields
-       
-      
-                $.each(response, function (index, item) {
-                  if (item.length > 0) {
-                    for (let i = 0; i < item.length; i++) {
-                      tr.append(
-                        "<tr>" +
-                          "<td>" +
-                          item[i][1] +
-                          "</td>" +
-                          "<td>" +
-                          item[i][1] +
-                          "</td>" +
-                          "<td>" +
-                          item[i][2] +
-                          "</td>" +
-                          "<td>" +
-                          item[i][3] +
-                          "</td>" +
-                          "<td>" +
-                          item[i][4] +
-                          "</td>" +
-                          "</tr>"
-                      );
-      
-                      // Update form fields with latest data
-                      $("#person").val(item[0][1]);
-                      $("#nama").val(item[0][2]);
-                      $("#skill").val(item[0][3]);
-                      $("#waktu").val(item[0][4]);
-                    }
+    <script type="text/javascript">
+      $(document).ready(function () {
+        let lastcnt = 0;
+        let cnt;
+        chkNewScan();
+
+        function chkNewScan() {
+          countTodayScan();
+          setTimeout(chkNewScan, 1000);
+        }
+
+        function countTodayScan() {
+          $.ajax({
+            url: "/countTodayScan",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+              cnt = data.rowcount;
+              if (cnt > lastcnt) {
+                reloadTable();
+              }
+
+              lastcnt = cnt;
+            },
+            error: function (result) {
+              console.log("no result!");
+            },
+          });
+        }
+
+        function reloadTable() {
+          $.ajax({
+            url: "/loadData",
+            type: "GET",
+            dataType: "json",
+            success: function (response) {
+              var tr = $("#scandata");
+              tr.empty();
+
+              // Clear form fields
+
+              $.each(response, function (index, item) {
+                if (item.length > 0) {
+                  for (let i = 0; i < item.length; i++) {
+                    tr.append(
+                      "<tr>" +
+                        "<td>" +
+                        item[i][1] +
+                        "</td>" +
+                        "<td>" +
+                        item[i][1] +
+                        "</td>" +
+                        "<td>" +
+                        item[i][2] +
+                        "</td>" +
+                        "<td>" +
+                        item[i][3] +
+                        "</td>" +
+                        "<td>" +
+                        item[i][4] +
+                        "</td>" +
+                        "</tr>"
+                    );
+
+                    // Update form fields with latest data
+                    $("#person").val(item[0][1]);
+                    $("#nama").val(item[0][2]);
+                    $("#skill").val(item[0][3]);
+                    $("#waktu").val(item[0][4]);
                   }
-                });
-              },
-              error: function (result) {
-                console.log("no result!");
-              },
-            });
-          }
-        });
-      </script>
+                }
+              });
+            },
+            error: function (result) {
+              console.log("no result!");
+            },
+          });
+        }
+      });
+    </script>
   </body>
 </html>
