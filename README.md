@@ -61,7 +61,5 @@
             </ul>
         </li>
     </ol>
-    <h1>collaborator</h1>
-    Ridwan Dwi Irawan : ridwan_dwiirawan@udb.ac.id
     
     
